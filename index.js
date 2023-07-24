@@ -23,6 +23,9 @@ async function run() {
   try {
     const serviceCollection = client.db("modern-car").collection("services");
     const orderCollection = client.db("modern-car").collection("orders");
+
+    // Service API
+
     app.get("/services", async (req, res) => {
       const query = {};
       const cursor = serviceCollection.find(query);
@@ -36,10 +39,35 @@ async function run() {
       res.send(service);
     });
 
-    // post API
+    // Orders API
+
+    app.get("/orders", async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = {
+          email: req.query.email,
+        };
+      }
+      const cursore = orderCollection.find(query);
+      const orders = await cursore.toArray();
+      res.send(orders);
+    });
+    // app.get("/orders/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const quary = { _id: new ObjectId(id) };
+    //   const result = await orderCollection.findOne(quary);
+    //   res.send(result);
+    // });
+
     app.post("/orders", async (req, res) => {
       const order = req.body;
       const result = await orderCollection.insertOne(order);
+      res.send(result);
+    });
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
